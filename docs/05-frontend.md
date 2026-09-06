@@ -8,7 +8,7 @@
 | Tài khoản | `/login`, `/register`, `/account`, `/account/addresses` | Xác thực, hồ sơ và địa chỉ |
 | Mua hàng | `/cart`, `/checkout`, `/orders`, `/orders/:id` | Giỏ, xác nhận giá, đặt hàng và theo dõi |
 | Kết quả thanh toán | `/payment/result` | Đọc trạng thái từ backend; hiển thị đang xác minh khi cần |
-| Quản trị | `/admin`, `/admin/books`, `/admin/categories`, `/admin/authors`, `/admin/publishers` | Dashboard và catalog |
+| Quản trị | `/admin`, `/admin/books`, `/admin/categories`, `/admin/authors` | Dashboard và catalog |
 | Vận hành | `/admin/orders`, `/admin/inventory`, `/admin/promotions`, `/admin/reviews` | Đơn, kho, khuyến mãi, kiểm duyệt |
 | Phân tích | `/admin/analytics`, `/admin/forecasts`, `/admin/alerts` | Báo cáo, thực tế/dự báo, cảnh báo |
 | Cấu hình | `/admin/users`, `/admin/knowledge`, `/admin/audit-logs` | Tài khoản, tri thức Chatbot, nhật ký |
@@ -51,6 +51,15 @@ Giao diện có loading, empty, error và retry cho từng màn hình. Checkout 
 Mỗi lần checkout logic giữ một idempotency key để retry lỗi mạng. Nếu người dùng đổi giỏ hoặc địa chỉ và gửi một yêu cầu mới thì tạo key mới. Khi chưa biết request cũ thành công hay chưa, tra kết quả hoặc gửi lại cùng key trước khi tạo đơn khác.
 
 Ảnh có alt text, input có label, lỗi gắn với field, dialog điều khiển được bằng bàn phím, trạng thái không chỉ phân biệt bằng màu. Trang responsive cho điện thoại và máy tính.
+
+## Nhà xuất bản và đánh giá sách
+
+- Form tạo/sửa sách có ô tên nhà xuất bản `publisherName` không bắt buộc, tối đa 255 ký tự. Trang chi tiết chỉ hiển thị khi có giá trị; không có trang quản lý nhà xuất bản riêng.
+- Trang chi tiết sách hiển thị điểm trung bình, số lượt và nhận xét đã duyệt, có phân trang. Chưa có lượt thì hiển thị “Chưa có đánh giá”.
+- Người chưa đăng nhập thấy hướng dẫn đăng nhập. Người đăng nhập dùng `/books/:id/review-eligibility` để biết có thể đánh giá hoặc đã có đánh giá hay chưa.
+- Khi đủ điều kiện đã mua và đơn `DELIVERED`, hiển thị form chọn 1–5 sao và nhập nhận xét bắt buộc, tối đa 2.000 ký tự; bộ chọn sao có label và dùng được bằng bàn phím.
+- Gửi thành công hiển thị “Đánh giá đang chờ duyệt”, làm mới eligibility và khóa tạo thêm đánh giá cho sách đó. Hiển thị rõ lỗi chưa đủ điều kiện hoặc đã đánh giá từ backend.
+- Nhận xét render dưới dạng văn bản an toàn. Màn hình quản trị đánh giá cho phép duyệt/ẩn, không sửa sao và nội dung của khách. Chưa có tính năng trả lời bình luận trong MVP.
 
 ## Dashboard và dự báo
 

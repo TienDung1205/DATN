@@ -40,13 +40,13 @@ Chốt phiên bản tương thích khi khởi tạo dự án, khóa dependency v
 | Module | Trách nhiệm |
 | --- | --- |
 | Auth / Users | Đăng nhập, phiên, vai trò và hồ sơ |
-| Catalog | Sách, tác giả, danh mục, nhà xuất bản và ảnh |
+| Catalog | Sách, tác giả, danh mục và ảnh; `publisherName` là thuộc tính chuỗi tùy chọn của sách |
 | Cart | Giỏ hàng của khách |
 | Orders | Tính tổng tiền, snapshot, trạng thái và idempotency |
 | Payments | Lần thanh toán, webhook, đối soát |
 | Promotions | Hiệu lực và hạn mức mã giảm giá |
 | Inventory | Lô nhập, tồn, giữ hàng và sổ biến động |
-| Reviews | Đánh giá sau mua và kiểm duyệt |
+| Reviews | Xác minh sách đã mua trong đơn `DELIVERED`, nhận xét kèm 1–5 sao và kiểm duyệt |
 | Analytics | Tổng hợp chỉ số và truy vấn báo cáo |
 | Forecasting | Dataset, huấn luyện, đánh giá và kết quả dự báo |
 | Chatbot | Hội thoại, truy xuất tri thức và công cụ có phân quyền |

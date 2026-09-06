@@ -38,7 +38,7 @@ Mã HTTP: `200` đọc/cập nhật, `201` tạo, `202` nhận job, `204` xóa t
 | PATCH/DELETE | `/users/me/addresses/:id` | Sửa / xóa địa chỉ | Chủ sở hữu |
 | GET | `/books` | `q`, `categoryId`, `authorId`, `minPrice`, `maxPrice`, `sort` → danh sách | Công khai |
 | GET | `/books/:id` | Chi tiết, ảnh, tác giả, tồn khả dụng | Công khai |
-| GET | `/categories`, `/authors`, `/publishers` | Danh sách tham chiếu | Công khai |
+| GET | `/categories`, `/authors` | Danh sách tham chiếu | Công khai |
 | GET | `/cart` | Các dòng giỏ và giá tham khảo hiện tại | Khách hàng |
 | POST | `/cart/items` | `bookId`, `quantity` → giỏ cập nhật | Khách hàng |
 | PATCH/DELETE | `/cart/items/:bookId` | Số lượng mới / xóa | Chủ giỏ |
@@ -48,14 +48,15 @@ Mã HTTP: `200` đọc/cập nhật, `201` tạo, `202` nhận job, `204` xóa t
 | POST | `/orders/:id/cancel` | Lý do → trạng thái mới | Chủ đơn, đúng điều kiện |
 | POST | `/orders/:id/payment-attempts` | Tạo/thử lại thanh toán khi đơn còn hạn → URL sandbox | Chủ đơn |
 | POST | `/payments/webhooks/:provider` | Payload, chữ ký → xác nhận theo giao thức cổng | Xác minh nhà cung cấp |
-| GET/POST | `/books/:id/reviews` | Xem / tạo đánh giá | Công khai / người đã mua |
+| GET | `/books/:id/reviews` | Danh sách `APPROVED` phân trang, `averageRating`, `reviewCount` | Công khai |
+| GET | `/books/:id/review-eligibility` | `canReview`, `reason`, `existingReview` của người gọi nếu có | Khách hàng |
+| POST | `/books/:id/reviews` | `rating` nguyên 1–5, `content` nhận xét → đánh giá `PENDING` | Khách có đơn chứa sách đã `DELIVERED` |
 | POST | `/chat/sessions` | Tạo phiên → ID và credential phiên khách nếu cần | Khách hoặc khách hàng |
 | POST | `/chat/sessions/:id/messages` | `message`, `clientMessageId` → trả lời và nguồn | Chủ phiên |
 | GET | `/chat/sessions/:id/messages` | Lịch sử phân trang | Chủ phiên |
 | POST/PATCH | `/admin/books`, `/admin/books/:id` | Tạo / cập nhật sách | Nhân viên, quản trị |
 | POST/PATCH | `/admin/categories`, `/admin/categories/:id` | Tạo / cập nhật hoặc ngừng hoạt động | Nhân viên, quản trị |
 | POST/PATCH | `/admin/authors`, `/admin/authors/:id` | Tạo / cập nhật tác giả | Nhân viên, quản trị |
-| POST/PATCH | `/admin/publishers`, `/admin/publishers/:id` | Tạo / cập nhật NXB | Nhân viên, quản trị |
 | POST | `/admin/uploads` | Ảnh multipart đã kiểm tra → URL/metadata | Nhân viên, quản trị |
 | GET | `/admin/orders`, `/admin/orders/:id` | Danh sách / chi tiết phục vụ xử lý | Nhân viên, quản trị |
 | PATCH | `/admin/orders/:id/status` | Trạng thái và lý do → đơn mới | Nhân viên, quản trị |
@@ -76,6 +77,27 @@ Mã HTTP: `200` đọc/cập nhật, `201` tạo, `202` nhận job, `204` xóa t
 | GET | `/admin/audit-logs` | Nhật ký phân trang | Quản trị |
 
 Ký hiệu endpoint gộp trong bảng phải được tách thành operation riêng khi tạo OpenAPI. API cập nhật catalog dùng `status` để ngừng bán, không xóa lịch sử.
+
+## Thuộc tính nhà xuất bản
+
+API tạo/cập nhật sách nhận `publisherName?: string | null`, tối đa 255 ký tự sau trim; chuỗi rỗng được chuẩn hóa thành null. Khi tạo, không truyền trường này thì lưu null; khi PATCH, không truyền thì giữ nguyên, truyền null hoặc chuỗi rỗng để xóa giá trị. API đọc sách trả `publisherName: string | null`. Không có endpoint quản lý nhà xuất bản riêng.
+
+## Nhận xét và chấm sao sau mua
+
+Ví dụ body `POST /books/101/reviews`:
+
+```json
+{
+  "rating": 5,
+  "content": "Nội dung dễ hiểu, sách được đóng gói cẩn thận."
+}
+```
+
+Input không nhận `userId` hoặc trạng thái kiểm duyệt; user lấy từ phiên đăng nhập. Backend kiểm tra đơn của user có sách tương ứng và đã `DELIVERED`. `content` phải có 1–2.000 ký tự sau trim. Thành công trả `201` với `id`, `bookId`, `rating`, `content`, `status: PENDING`, `createdAt`.
+
+Chưa đăng nhập trả `401`; chưa đủ điều kiện mua trả `403 REVIEW_PURCHASE_REQUIRED`; đã đánh giá trả `409 REVIEW_ALREADY_EXISTS`; sao không nguyên/ngoài 1–5 hoặc nhận xét không hợp lệ trả `400 VALIDATION_ERROR`. Endpoint eligibility hỗ trợ giao diện nhưng POST luôn phải xác minh lại điều kiện. `reason` dùng `PURCHASE_REQUIRED`, `ALREADY_REVIEWED` hoặc null khi đủ điều kiện.
+
+Danh sách công khai chỉ trả đánh giá `APPROVED`, tên hiển thị và thông tin đánh giá; không trả email, số điện thoại hoặc mã đơn. Điểm trung bình null nếu chưa có lượt được duyệt. API kiểm duyệt chỉ đổi trạng thái `PENDING`, `APPROVED`, `HIDDEN` và ghi audit, không cho sửa `rating`/`content` của khách.
 
 ## Ví dụ đặt hàng
 

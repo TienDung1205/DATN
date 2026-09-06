@@ -31,6 +31,10 @@ Audit ghi ai, hành động gì, đối tượng nào, thay đổi nào và khi 
 | Idempotency | Gửi lặp đặt hàng, webhook, nhập kho và job | Không tạo trùng đơn, trừ kho hoặc ghi nhận tiền |
 | Race condition | Webhook thành công và job hết hạn cùng chạy | Trạng thái nhất quán; thanh toán muộn vào đối soát |
 | Phân quyền | Đổi ID đơn, địa chỉ, phiên chat người khác | Không đọc hoặc sửa được dữ liệu |
+| Catalog | Tạo/PATCH `publisherName` thiếu, null, rỗng, hợp lệ hoặc quá 255 ký tự | Tạo thiếu → null; PATCH thiếu → giữ nguyên; rỗng → null; quá dài → lỗi |
+| Đánh giá sau mua | Chưa mua, đơn chưa giao/hủy, đơn đã giao, giả mạo user, gửi trùng đồng thời | Chỉ user có đơn chứa sách `DELIVERED` được gửi; tối đa một đánh giá/user/sách |
+| Nội dung đánh giá | Sao 0, 6, số lẻ; nhận xét trắng/quá 2.000 ký tự; nội dung HTML | Từ chối input sai; hiển thị văn bản không thực thi script |
+| Kiểm duyệt đánh giá | Tạo mới, duyệt, ẩn và xem điểm trung bình | Mới là `PENDING`; chỉ `APPROVED` công khai và được tính điểm; không sửa sao/nhận xét |
 | Frontend | Form, loading, lỗi mạng, refresh token | Không submit lặp vô ý; thông báo rõ, không vòng lặp refresh |
 | E2E | Đăng nhập → mua COD/sandbox → xử lý → giao | Dòng tiền, tồn, báo cáo khớp nghiệp vụ |
 | Chatbot | FAQ, giá, đơn, injection, timeout | Không bịa dữ liệu, không vượt quyền, có fallback |

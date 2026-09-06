@@ -23,18 +23,27 @@ Mọi quyền phải được kiểm tra ở backend. Đơn hàng, địa chỉ,
 | Nhóm | Chức năng | Tiêu chí nghiệm thu |
 | --- | --- | --- |
 | Tài khoản | Đăng ký, đăng nhập, đăng xuất, cập nhật hồ sơ, đổi mật khẩu | Kiểm tra dữ liệu đầu vào; email không trùng; mật khẩu được băm |
-| Danh mục | CRUD sách, tác giả, nhà xuất bản, danh mục; ảnh bìa | Sách có SKU duy nhất, giá hợp lệ; ngừng bán được mà không mất lịch sử |
+| Danh mục | CRUD sách, tác giả, danh mục; ảnh bìa; tên nhà xuất bản tùy chọn trên sách | Sách có SKU duy nhất, giá hợp lệ; `publisherName` được để trống; ngừng bán được mà không mất lịch sử |
 | Tìm kiếm | Từ khóa, danh mục, tác giả, khoảng giá, sắp xếp, phân trang | Bộ lọc kết hợp được; trạng thái rỗng và lỗi có thông báo |
 | Giỏ hàng | Thêm, đổi số lượng, xóa sách | Số lượng nguyên dương; giá và tồn kho được xác thực lại lúc đặt hàng |
 | Đơn hàng | Đặt hàng, xem lịch sử, hủy khi đủ điều kiện, xử lý giao hàng | Không đặt vượt tồn khả dụng; không chuyển trạng thái tùy ý |
 | Thanh toán | COD và thanh toán sandbox | Webhook được xác minh, xử lý lặp không ghi nhận thanh toán hai lần |
 | Khuyến mãi | Mã giảm theo số tiền hoặc phần trăm | Kiểm tra thời gian, hạn mức, tổng đơn tối thiểu và số lần sử dụng |
 | Tồn kho | Nhập, điều chỉnh có lý do, giữ hàng, xuất hàng | Mỗi thay đổi có dấu vết; không âm tồn hoặc âm lượng giữ |
-| Đánh giá | Chấm điểm và nhận xét sau mua | Xác minh đơn đã giao; một khách chỉ có một đánh giá cho một sách |
+| Đánh giá | Chấm 1–5 sao và viết nhận xét (comment) sau mua | Xác minh khách có đơn chứa sách ở trạng thái `DELIVERED`; một khách chỉ có một đánh giá cho một sách |
 | Báo cáo | Doanh thu, số lượng bán, đơn, sách bán chạy/chậm | Chỉ số có định nghĩa thống nhất và lọc theo thời gian |
 | Chatbot | Tìm sách, tư vấn, FAQ, tra cứu đơn của người đang đăng nhập | Dữ liệu sản phẩm lấy từ hệ thống; không lộ đơn người khác |
 | Dự báo | Dự báo lượng bán danh mục cho các tuần tiếp theo | Có baseline, đánh giá theo thời gian và nguồn dữ liệu được công bố |
 | Cảnh báo | Sắp hết hàng, tồn lâu, nhu cầu tăng | Giải thích được dữ liệu, ngưỡng và thời điểm tính |
+
+## Nhà xuất bản và đánh giá sách
+
+- Nhà xuất bản là thông tin bổ sung: lưu `publisherName` dạng chuỗi tùy chọn trên sách, không có bảng hoặc màn hình quản lý riêng.
+- Người dùng phải đăng nhập và có ít nhất một đơn của mình chứa sách đã giao thành công (`DELIVERED`) mới được gửi đánh giá. Chỉ đặt hàng hoặc thanh toán khi chưa giao chưa đủ điều kiện.
+- Mỗi đánh giá gồm số sao nguyên từ 1–5 và nội dung nhận xét không rỗng sau khi bỏ khoảng trắng đầu/cuối, tối đa 2.000 ký tự.
+- Mỗi khách có tối đa một đánh giá cho mỗi sách, kể cả mua nhiều lần. Backend kiểm tra quyền mua và chống gửi trùng.
+- Đánh giá mới ở trạng thái `PENDING`; nhân viên/quản trị duyệt thành `APPROVED` hoặc ẩn bằng `HIDDEN`. Chỉ đánh giá `APPROVED` được hiển thị công khai và tính điểm trung bình; kiểm duyệt không sửa sao hoặc lời nhận xét của khách.
+- Comment là nội dung của đánh giá, chưa có luồng bình luận độc lập hoặc trả lời qua lại trong MVP.
 
 ## Ngoài MVP
 

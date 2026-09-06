@@ -20,8 +20,7 @@ Các trường dưới đây là thiết kế logic; migration phải bổ sung 
 | `addresses` | `id`, `user_id`, `recipient_name`, `phone`, `address_line`, `ward`, `province`, `is_default` |
 | `categories` | `id`, `name`, `slug` unique, `status`; MVP dùng danh mục phẳng |
 | `authors` | `id`, `name`, `biography` |
-| `publishers` | `id`, `name`, `description` |
-| `books` | `id`, `sku` unique, `isbn` nullable unique, `title`, `slug` unique, `description`, `category_id`, `publisher_id`, `price`, `publication_year`, `status` |
+| `books` | `id`, `sku` unique, `isbn` nullable unique, `title`, `slug` unique, `description`, `category_id`, `publisher_name` VARCHAR(255) nullable (thuộc tính TypeScript/API: `publisherName`), `price`, `publication_year`, `status` |
 | `book_authors` | `book_id`, `author_id`; khóa chính ghép |
 | `book_images` | `id`, `book_id`, `url`, `sort_order`, `alt_text` |
 | `carts` | `id`, `user_id` unique |
@@ -38,7 +37,7 @@ Các trường dưới đây là thiết kế logic; migration phải bổ sung 
 | `inventory_batches` | `id`, `book_id`, `received_quantity`, `remaining_quantity`, `unit_cost` nullable, `received_at`, `reference_code` |
 | `inventory_reservations` | `id`, `order_item_id` unique, `book_id`, `quantity`, `status`, `expires_at` nullable |
 | `inventory_movements` | `id`, `book_id`, `batch_id` nullable, `order_item_id` nullable, `type`, `on_hand_delta`, `reserved_delta`, `operation_key` unique, `reason`, `actor_id` nullable, `created_at` |
-| `reviews` | `id`, `user_id`, `book_id`, `rating`, `content`, `status`; unique `(user_id, book_id)`; điểm 1–5 |
+| `reviews` | `id`, `user_id` FK, `book_id` FK, `rating` TINYINT UNSIGNED NOT NULL CHECK (rating BETWEEN 1 AND 5), `content` VARCHAR(2000) NOT NULL, `status` (`PENDING` mặc định, `APPROVED`, `HIDDEN`), `created_at`, `updated_at`; unique `(user_id, book_id)` |
 | `chat_sessions` | `id`, `user_id` nullable, `guest_token_hash` nullable, `expires_at` |
 | `chat_messages` | `id`, `session_id`, `role`, `content`, `tool_metadata` JSON nullable, `created_at` |
 | `knowledge_documents` | `id`, `title`, `content`, `source`, `version`, `status`, `approved_by` nullable |
@@ -57,7 +56,8 @@ erDiagram
     USERS ||--o{ ORDERS : places
     USERS ||--o{ ADDRESSES : owns
     CATEGORIES ||--o{ BOOKS : classifies
-    PUBLISHERS ||--o{ BOOKS : publishes
+    USERS ||--o{ REVIEWS : writes
+    BOOKS ||--o{ REVIEWS : receives
     BOOKS ||--o{ BOOK_AUTHORS : has
     AUTHORS ||--o{ BOOK_AUTHORS : writes
     ORDERS ||--|{ ORDER_ITEMS : contains
@@ -68,6 +68,14 @@ erDiagram
     ORDER_ITEMS ||--o| INVENTORY_RESERVATIONS : reserves
     FORECAST_RUNS ||--o{ FORECAST_VALUES : produces
 ```
+
+## Tên nhà xuất bản và dữ liệu đánh giá
+
+`publisherName` trong TypeScript/API ánh xạ tới cột `books.publisher_name` để giữ quy ước snake_case của MySQL. Trường này không có FK hoặc unique constraint. Giá trị được trim, tối đa 255 ký tự; chuỗi rỗng được chuẩn hóa thành `NULL`. Không cần bảng nhà xuất bản riêng.
+
+Trước khi insert `reviews`, backend kiểm tra tồn tại `orders` thuộc user trong phiên, có `status = DELIVERED` và `order_items.book_id` khớp sách được đánh giá. FK chỉ xác minh user/sách tồn tại, không thay thế kiểm tra đã mua. Unique `(user_id, book_id)` ngăn hai request đồng thời tạo hai đánh giá.
+
+`content` lưu nhận xét dạng văn bản, bắt buộc không rỗng sau trim; `rating` là số nguyên 1–5. Điểm trung bình và số lượt đánh giá chỉ tính trên `APPROVED`; khi chưa có đánh giá được duyệt, điểm trung bình trả null và số lượt là 0. Thêm index `reviews(book_id, status, created_at)` cho danh sách công khai. Thay đổi trạng thái kiểm duyệt được ghi audit.
 
 ## Tính tiền và snapshot
 
