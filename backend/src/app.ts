@@ -1,15 +1,15 @@
 import express from 'express';
+import healthRouter from './routes/shared/health.routes.js';
 
 const app = express();
 
 app.disable('x-powered-by');
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(healthRouter);
 
-app.get('/health', (_req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Server is healthy',
+app.use((_req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Endpoint not found',
   });
 });
 
