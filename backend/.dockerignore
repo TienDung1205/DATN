@@ -1,4 +1,7 @@
 node_modules
+.npm-cache
+src/generated
+LOCAL_BACKEND_GUIDE.md
 dist
 .env
 .env.*
