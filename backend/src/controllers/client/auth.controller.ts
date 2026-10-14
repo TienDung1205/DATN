@@ -13,17 +13,19 @@ type LoginRequest = Request<Record<string, string>, AuthDto.LoginResponse, AuthD
 export const register = async (req: RegisterRequest, res: Response<AuthDto.RegisterResponse>, next: NextFunction) => {
   try {
     const userAuthService = getAppValue<UserAuthService>(req.app, 'userAuthService');
-    const user = await userAuthService.register(req.body);
+    const result = await userAuthService.register(req.body);
+
+    setCookie(req, res, result.refreshToken);
 
     req.log.info(
-      { event: 'user_registered', userId: user.id },
+      { event: 'user_registered', userId: result.data.user.id },
       'Customer registered',
     );
 
     res.status(201).json({
       success: true,
-      message: 'Đăng ký thành công. Vui lòng đăng nhập.',
-      data: user,
+      message: 'Đăng ký thành công.',
+      data: result.data,
     });
   } catch (error) {
     next(error);

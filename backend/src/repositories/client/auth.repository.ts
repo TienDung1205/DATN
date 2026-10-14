@@ -80,6 +80,10 @@ export type UserStore = ReturnType<typeof createQueries>;
 export function createUserAuthRepository(client: PrismaClient) {
   const queries = createQueries(client);
 
+  function withTransaction<T>(operation: (store: UserStore) => Promise<T>): Promise<T> {
+    return client.$transaction((transaction) => operation(createQueries(transaction)));
+  }
+
   function withUserLock<T>(userId: bigint, operation: (store: UserStore) => Promise<T>): Promise<T> {
     return client.$transaction(async (transaction) => {
       await transaction.$queryRaw`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
@@ -89,7 +93,7 @@ export function createUserAuthRepository(client: PrismaClient) {
     });
   }
 
-  return { ...queries, withUserLock };
+  return { ...queries, withTransaction, withUserLock };
 }
 
 export type UserAuthRepository = ReturnType<typeof createUserAuthRepository>;
