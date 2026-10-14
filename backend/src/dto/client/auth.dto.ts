@@ -9,7 +9,7 @@ export interface RegisterInput {
   confirmPassword: string;
 }
 
-export interface RegisterOutput {
+export interface UserOutput {
   id: string;
   email: string;
   fullName: string;
@@ -25,11 +25,14 @@ export interface LoginInput {
   password: string;
 }
 
-export interface LoginOutput {
+export interface AuthSessionOutput {
   accessToken: string;
   expiresIn: number;
-  user: RegisterOutput;
+  user: UserOutput;
 }
+
+export type RegisterOutput = AuthSessionOutput;
+export type LoginOutput = AuthSessionOutput;
 
 export interface UserSessionResult {
   refreshToken: string;
@@ -39,10 +42,10 @@ export interface UserSessionResult {
 export interface UserPrincipal {
   userId: bigint;
   sessionId: bigint;
-  profile: RegisterOutput;
+  profile: UserOutput;
 }
 
 export type LoginResponse = ApiResponse<LoginOutput>;
 export type RefreshResponse = ApiResponse<LoginOutput>;
 export type LogoutResponse = ApiResponse<null>;
-export type MeResponse = ApiResponse<RegisterOutput>;
+export type MeResponse = ApiResponse<UserOutput>;

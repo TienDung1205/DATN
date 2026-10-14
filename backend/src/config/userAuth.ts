@@ -1,7 +1,11 @@
 import * as z from 'zod';
 
+const MIN_ACCESS_TOKEN_SECRET_BYTES = 32;
+
 const userAuthConfigSchema = z.object({
-  USER_ACCESS_TOKEN_SECRET: z.string().regex(/^[a-fA-F0-9]{64}$/),
+  USER_ACCESS_TOKEN_SECRET: z
+    .string()
+    .refine((value) => Buffer.byteLength(value, 'utf8') >= MIN_ACCESS_TOKEN_SECRET_BYTES),
   AUTH_ISSUER: z.string().trim().min(1).default('bookstore-api'),
   USER_ACCESS_TOKEN_TTL_SECONDS: z.coerce
     .number()
@@ -54,8 +58,8 @@ export function readUserAuthConfig(
 
   if (validation.success) {
     const config = validation.data;
-    const userSecret = config.USER_ACCESS_TOKEN_SECRET.toLowerCase();
-    const adminSecret = environment.ADMIN_ACCESS_TOKEN_SECRET?.toLowerCase();
+    const userSecret = config.USER_ACCESS_TOKEN_SECRET;
+    const adminSecret = environment.ADMIN_ACCESS_TOKEN_SECRET;
 
     if (userSecret === adminSecret) {
       throw new Error(

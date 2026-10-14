@@ -5,7 +5,7 @@ import type * as AuthDto from '../../../dto/client/auth.dto.js';
 import type { UserAuthRepository, UserStore } from '../../../repositories/client/auth.repository.js';
 import type { UserAccess } from './authAccess.service.js';
 import { AppError } from '../../../errors/appError.js';
-import { toRegisterOutput } from '../../../mappers/client/auth.mapper.js';
+import { toUserOutput } from '../../../mappers/client/auth.mapper.js';
 import { hashRefreshToken, newRefreshToken } from '../../../utils/authTokens.js';
 import { verifyPassword } from '../../../utils/password.js';
 import { invalidLogin, invalidSession } from '../../../utils/userAuthErrors.js';
@@ -146,10 +146,10 @@ export function createUserLoginSessions(repository: UserAuthRepository, config: 
   async function authenticate(accessToken: string): Promise<AuthDto.UserPrincipal> {
     const { userId, sessionId } = await access.tokens.verify(accessToken);
     const user = await access.getCurrentUser(repository, userId, sessionId);
-    const profile = toRegisterOutput(user);
+    const profile = toUserOutput(user);
 
     return { userId, sessionId, profile };
   }
 
-  return { login, refresh, logout, authenticate };
+  return { login, refresh, logout, authenticate, createLoginSession };
 }

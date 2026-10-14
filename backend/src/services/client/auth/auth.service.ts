@@ -5,9 +5,9 @@ import { createUserAccess } from './authAccess.service.js';
 import { createUserLoginSessions } from './authLogin.service.js';
 
 export async function createUserAuthService(repository: UserAuthRepository, config: UserAuthConfig) {
-  const registration = createUserSessions(repository);
   const access = await createUserAccess(config);
   const sessions = createUserLoginSessions(repository, config, access);
+  const registration = createUserSessions(repository, sessions.createLoginSession);
 
   return {
     register: registration.register,

@@ -2,7 +2,7 @@ import type { User } from '../../../generated/prisma/client.js';
 import type { UserAuthConfig } from '../../../config/userAuth.js';
 import type { UserSessionResult } from '../../../dto/client/auth.dto.js';
 import type { UserStore } from '../../../repositories/client/auth.repository.js';
-import { toRegisterOutput } from '../../../mappers/client/auth.mapper.js';
+import { toUserOutput } from '../../../mappers/client/auth.mapper.js';
 import { createUserTokens, newRefreshToken } from '../../../utils/authTokens.js';
 import { hashPassword } from '../../../utils/password.js';
 import { invalidSession } from '../../../utils/userAuthErrors.js';
@@ -38,7 +38,7 @@ export async function createUserAccess(config: UserAuthConfig) {
 
   async function issueTokens(user: User, sessionId: bigint, refreshToken: string): Promise<UserSessionResult> {
     const accessToken = await tokens.sign(user.id, sessionId);
-    const profile = toRegisterOutput(user);
+    const profile = toUserOutput(user);
 
     return {
       refreshToken,

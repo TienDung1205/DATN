@@ -42,7 +42,7 @@ function readDatabaseId(value: unknown): bigint {
 }
 
 export function createUserTokens(config: UserAuthConfig) {
-  const signingKey = Buffer.from(config.USER_ACCESS_TOKEN_SECRET, 'hex');
+  const signingKey = Buffer.from(config.USER_ACCESS_TOKEN_SECRET, 'utf8');
 
   function sign(userId: bigint, sessionId: bigint): Promise<string> {
     const payload = {

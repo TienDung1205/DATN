@@ -1,23 +1,27 @@
 import { Prisma } from '../../../generated/prisma/client.js';
-import type { RegisterInput, RegisterOutput } from '../../../dto/client/auth.dto.js';
-import { toRegisterOutput } from '../../../mappers/client/auth.mapper.js';
+import type * as AuthDto from '../../../dto/client/auth.dto.js';
 import { AppError } from '../../../errors/appError.js';
 import type { UserAuthRepository } from '../../../repositories/client/auth.repository.js';
+import type { createUserLoginSessions } from './authLogin.service.js';
 import { hashPassword } from '../../../utils/password.js';
 
-export function createUserSessions(repository: Pick<UserAuthRepository, 'createUser'>) {
-  async function register(input: RegisterInput): Promise<RegisterOutput> {
+type CreateLoginSession = ReturnType<typeof createUserLoginSessions>['createLoginSession'];
+
+export function createUserSessions(repository: Pick<UserAuthRepository, 'withTransaction'>, createLoginSession: CreateLoginSession) {
+  async function register(input: AuthDto.RegisterInput): Promise<AuthDto.UserSessionResult> {
     const password = await hashPassword(input.password);
 
     try {
-      const user = await repository.createUser({
-        email: input.email,
-        phone: input.phone,
-        fullName: input.fullName,
-        password,
-      });
+      return await repository.withTransaction(async (store) => {
+        const user = await store.createUser({
+          email: input.email,
+          phone: input.phone,
+          fullName: input.fullName,
+          password,
+        });
 
-      return toRegisterOutput(user);
+        return createLoginSession(store, user);
+      });
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

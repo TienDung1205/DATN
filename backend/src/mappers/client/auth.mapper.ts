@@ -1,7 +1,7 @@
 import type { User } from '../../generated/prisma/client.js';
-import type { RegisterOutput } from '../../dto/client/auth.dto.js';
+import type { UserOutput } from '../../dto/client/auth.dto.js';
 
-export function toRegisterOutput(user: User): RegisterOutput {
+export function toUserOutput(user: User): UserOutput {
   return {
     id: user.id.toString(),
     email: user.email,
