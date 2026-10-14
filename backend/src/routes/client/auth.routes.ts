@@ -14,6 +14,7 @@ router.use(noStore);
 router.post('/register', requireFrontendOrigin, userLoginLimit, validateBody(registerSchema), authController.register);
 router.post('/login', requireFrontendOrigin, userLoginLimit, validateBody(loginSchema), authController.login);
 
+router.post('/refresh', requireFrontendOrigin, userRefreshLimit, authController.refresh);
 router.post('/logout', requireFrontendOrigin, userRefreshLimit, authController.logout);
 
 router.get('/me', authenticateUser, authController.me);

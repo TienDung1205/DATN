@@ -12,6 +12,7 @@ export async function createUserAuthService(repository: UserAuthRepository, conf
   return {
     register: registration.register,
     login: sessions.login,
+    refresh: sessions.refresh,
     logout: sessions.logout,
     authenticate: sessions.authenticate,
   };

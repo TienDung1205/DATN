@@ -43,5 +43,6 @@ export interface UserPrincipal {
 }
 
 export type LoginResponse = ApiResponse<LoginOutput>;
+export type RefreshResponse = ApiResponse<LoginOutput>;
 export type LogoutResponse = ApiResponse<null>;
 export type MeResponse = ApiResponse<RegisterOutput>;

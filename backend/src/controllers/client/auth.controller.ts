@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import type * as AuthDto from '../../dto/client/auth.dto.js';
 import type { UserAuthService } from '../../services/client/auth/auth.service.js';
+import { AppError } from '../../errors/appError.js';
 import { getUserPrincipal } from '../../middlewares/client/auth.middleware.js';
 import { getAppValue } from '../../utils/appContext.js';
 import { clearCookie, readToken, setCookie } from '../../utils/userAuthCookies.js';
@@ -47,6 +48,34 @@ export const login = async (req: LoginRequest, res: Response<AuthDto.LoginRespon
       data: result.data,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+// [POST] /auth/refresh
+export const refresh = async (req: Request, res: Response<AuthDto.RefreshResponse>, next: NextFunction) => {
+  try {
+    const userAuthService = getAppValue<UserAuthService>(req.app, 'userAuthService');
+    const token = readToken(req);
+
+    if (!token) {
+      clearCookie(req, res);
+      throw new AppError(401, 'Vui lòng đăng nhập lại.');
+    }
+
+    const result = await userAuthService.refresh(token);
+    setCookie(req, res, result.refreshToken);
+
+    res.json({
+      success: true,
+      message: 'Đã làm mới phiên đăng nhập.',
+      data: result.data,
+    });
+  } catch (error) {
+    if (error instanceof AppError && error.statusCode === 401) {
+      clearCookie(req, res);
+    }
+
     next(error);
   }
 };
