@@ -2,7 +2,7 @@
   "name": "bookstore-backend",
   "version": "0.1.0",
   "private": true,
-  "description": "Bookstore backend - user registration API",
+  "description": "Bookstore",
   "type": "module",
   "main": "dist/server.js",
   "engines": {
@@ -15,17 +15,20 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
     "db:generate": "prisma generate",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "auth:setup": "node scripts/setup-user-auth.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "argon2": "0.45.1",
+    "cookie": "2.0.1",
     "cors": "2.8.6",
     "dotenv": "17.4.2",
     "express": "5.2.1",
     "express-rate-limit": "8.7.0",
     "helmet": "8.3.0",
+    "jose": "6.2.12",
     "pg": "^8.23.0",
     "pino": "10.3.1",
     "pino-http": "11.0.0",
