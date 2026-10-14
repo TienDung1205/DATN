@@ -1,8 +1,13 @@
 # Dependencies
 node_modules/
+.npm-cache/
+
+# Local documentation
+/LOCAL_BACKEND_GUIDE.md
 
 # Build output
 dist/
+src/generated/
 coverage/
 *.tsbuildinfo
 
@@ -32,3 +37,4 @@ Thumbs.db
 # Prisma local databases
 prisma/*.db
 prisma/*.db-journal
+tests/
