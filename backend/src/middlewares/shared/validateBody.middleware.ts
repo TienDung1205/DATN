@@ -25,11 +25,7 @@ export function validateBody(schema: ZodType): RequestHandler {
       });
     }
 
-    const error = new AppError(
-      HTTP_STATUS.BAD_REQUEST,
-      'Dữ liệu không hợp lệ.',
-      errors,
-    );
+    const error = new AppError(HTTP_STATUS.BAD_REQUEST, 'Dữ liệu không hợp lệ.', errors);
 
     next(error);
   };

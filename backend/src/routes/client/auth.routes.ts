@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as authController from '../../controllers/client/auth.controller.js';
 import { authenticateUser } from '../../middlewares/client/auth.middleware.js';
-import { requireFrontendOrigin } from '../../middlewares/shared/authOrigin.middleware.js';
+import { requireFrontendOrigin } from '../../middlewares/shared/origin.middleware.js';
 import { noStore } from '../../middlewares/shared/cache.middleware.js';
 import { userLoginLimit, userRefreshLimit } from '../../middlewares/shared/rateLimit.middleware.js';
 import { validateBody } from '../../middlewares/shared/validateBody.middleware.js';
