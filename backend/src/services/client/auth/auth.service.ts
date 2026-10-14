@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { Prisma, type User } from '../../../generated/prisma/client.js';
-import type { UserAuthConfig } from '../../../config/userAuth.js';
+import type { UserAuthConfig } from '../../../config/auth.js';
 import type * as AuthDto from '../../../dto/client/auth.dto.js';
 import type { UserAuthRepository, UserStore } from '../../../repositories/client/auth.repository.js';
 import { AppError } from '../../../errors/appError.js';
 import { toUserOutput } from '../../../mappers/client/auth.mapper.js';
 import { createUserTokens, hashRefreshToken, newRefreshToken } from '../../../utils/authTokens.js';
 import { hashPassword, verifyPassword } from '../../../utils/password.js';
-import { invalidLogin, invalidSession } from '../../../utils/userAuthErrors.js';
+import { invalidLogin, invalidSession } from '../../../utils/authErrors.js';
 
 type RefreshResult = { value: AuthDto.UserSessionResult } | { error: AppError };
 
@@ -153,21 +153,13 @@ export async function createUserAuthService(repository: UserAuthRepository, conf
     if (session.revokedAt) {
       await store.revokeFamily(userId, session.familyId, now);
 
-      const error = new AppError(
-        401,
-        'Refresh token đã được sử dụng. Vui lòng đăng nhập lại.',
-        [{ message: 'REFRESH_TOKEN_REUSED' }],
-      );
+      const error = new AppError(401, 'Refresh token đã được sử dụng. Vui lòng đăng nhập lại.', [{ message: 'REFRESH_TOKEN_REUSED' }]);
 
       return { error };
     }
 
     if (session.expiresAt <= now) {
-      const error = new AppError(
-        401,
-        'Phiên đã hết hạn. Vui lòng đăng nhập lại.',
-        [{ message: 'REFRESH_TOKEN_EXPIRED' }],
-      );
+      const error = new AppError(401, 'Phiên đã hết hạn. Vui lòng đăng nhập lại.', [{ message: 'REFRESH_TOKEN_EXPIRED' }]);
 
       return { error };
     }
