@@ -1,7 +1,7 @@
 import type { Express } from 'express';
-import * as systemConfig from '../../config/system.js';
+import { prefixApi } from '../../config/system.js';
 import { authRoutes } from './auth.routes.js';
 
 export const clientRoutesApiVer1 = (app: Express): void => {
-  app.use(systemConfig.prefixApi + '/auth', authRoutes);
+  app.use(prefixApi + '/auth', authRoutes);
 };

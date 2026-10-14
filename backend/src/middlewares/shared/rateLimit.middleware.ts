@@ -31,8 +31,19 @@ function createUserLoginLimit(app: Application) {
 
 export const userLoginLimit = perAppMiddleware(createUserLoginLimit);
 
+function createUserRefreshLimit(app: Application) {
+  const config = getAppValue<UserAuthConfig>(app, 'userAuthConfig');
+  const windowSeconds = config.AUTH_RATE_LIMIT_WINDOW_SECONDS;
+  const requestLimit = config.AUTH_REFRESH_RATE_LIMIT;
+
+  return authRateLimit(windowSeconds, requestLimit);
+}
+
+export const userRefreshLimit = perAppMiddleware(createUserRefreshLimit);
+
 export function initializeRateLimits(app: Application): void {
   if (app.locals.userAuthConfig) {
     userLoginLimit.initialize(app);
+    userRefreshLimit.initialize(app);
   }
 }
