@@ -54,7 +54,7 @@ export async function createUserAuthService(repository: UserAuthRepository, conf
     const tokenHash = hashRefreshToken(refreshToken);
     const foundSession = await repository.findSessionByHash(tokenHash);
 
-    if (!foundSession) {
+    if (!foundSession || foundSession.userId === null || foundSession.adminId !== null) {
       throw invalidSession();
     }
 
@@ -78,12 +78,13 @@ export async function createUserAuthService(repository: UserAuthRepository, conf
     const tokenHash = hashRefreshToken(refreshToken);
     const session = await repository.findSessionByHash(tokenHash);
 
-    if (!session) {
+    if (!session || session.userId === null || session.adminId !== null) {
       return;
     }
 
-    await repository.withUserLock(session.userId, async (store) => {
-      await store.revokeFamily(session.userId, session.familyId, new Date());
+    const userId = session.userId;
+    await repository.withUserLock(userId, async (store) => {
+      await store.revokeFamily(userId, session.familyId, new Date());
     });
   }
 
@@ -98,7 +99,7 @@ export async function createUserAuthService(repository: UserAuthRepository, conf
       throw invalidSession();
     }
 
-    if (!session || session.userId !== userId) {
+    if (!session || session.userId !== userId || session.adminId !== null) {
       throw invalidSession();
     }
 
@@ -145,7 +146,7 @@ export async function createUserAuthService(repository: UserAuthRepository, conf
     const session = await store.findSession(sessionId);
     const now = new Date();
 
-    if (!session || session.userId !== userId) {
+    if (!session || session.userId !== userId || session.adminId !== null) {
       return { error: invalidSession() };
     }
 

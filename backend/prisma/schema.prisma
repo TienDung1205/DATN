@@ -13,6 +13,31 @@ enum AccountStatus {
   BLOCKED
 }
 
+enum AdminRole {
+  MANAGER
+  STAFF
+}
+
+model Admin {
+  id               BigInt           @id @default(autoincrement())
+  email            String           @unique
+  password         String
+  fullName         String           @map("full_name")
+  phone            String?
+  status           AccountStatus    @default(ACTIVE)
+  role             AdminRole
+  createdByAdminId  BigInt?          @map("created_by_admin_id")
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy        Admin?           @relation("AdminCreator", fields: [createdByAdminId], references: [id], onDelete: Restrict)
+  createdAdmins    Admin[]          @relation("AdminCreator")
+  sessions         RefreshSession[]
+
+  @@index([createdByAdminId])
+  @@index([role])
+  @@map("admins")
+}
+
 model User {
   id        BigInt           @id @default(autoincrement())
   email     String           @unique
@@ -30,7 +55,8 @@ model User {
 
 model RefreshSession {
   id                  BigInt           @id @default(autoincrement())
-  userId              BigInt           @map("user_id")
+  userId              BigInt?          @map("user_id")
+  adminId             BigInt?          @map("admin_id")
   familyId            String           @map("family_id") @db.Uuid
   tokenHash           String           @unique @map("token_hash")
   expiresAt           DateTime         @map("expires_at") @db.Timestamptz(3)
@@ -38,11 +64,13 @@ model RefreshSession {
   replacedBySessionId BigInt?          @map("replaced_by_session_id")
   lastUsedAt          DateTime?        @map("last_used_at") @db.Timestamptz(3)
   createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
-  user                User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user                User?            @relation(fields: [userId], references: [id], onDelete: Restrict)
+  admin               Admin?           @relation(fields: [adminId], references: [id], onDelete: Restrict)
   replacement         RefreshSession?  @relation("SessionRotation", fields: [replacedBySessionId], references: [id], onDelete: Restrict)
   predecessors        RefreshSession[] @relation("SessionRotation")
 
   @@index([userId, expiresAt])
+  @@index([adminId, expiresAt])
   @@index([familyId])
   @@index([replacedBySessionId])
   @@map("refresh_sessions")

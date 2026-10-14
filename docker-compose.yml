@@ -22,6 +22,12 @@ services:
       USER_REFRESH_TOKEN_TTL_SECONDS: ${USER_REFRESH_TOKEN_TTL_SECONDS:-604800}
       AUTH_REFRESH_RATE_LIMIT: ${AUTH_REFRESH_RATE_LIMIT:-60}
       USER_COOKIE_SECURE: ${USER_COOKIE_SECURE:-false}
+      ADMIN_ACCESS_TOKEN_SECRET: ${ADMIN_ACCESS_TOKEN_SECRET:?Set ADMIN_ACCESS_TOKEN_SECRET in .env}
+      ADMIN_ACCESS_TOKEN_TTL_SECONDS: ${ADMIN_ACCESS_TOKEN_TTL_SECONDS:-900}
+      ADMIN_REFRESH_TOKEN_TTL_SECONDS: ${ADMIN_REFRESH_TOKEN_TTL_SECONDS:-604800}
+      ADMIN_COOKIE_SECURE: ${ADMIN_COOKIE_SECURE:-false}
+      ADMIN_LOGIN_RATE_LIMIT: ${ADMIN_LOGIN_RATE_LIMIT:-20}
+      ADMIN_REFRESH_RATE_LIMIT: ${ADMIN_REFRESH_RATE_LIMIT:-60}
     depends_on:
       database:
         condition: service_healthy
@@ -46,8 +52,12 @@ services:
       target: migrate
     init: true
     restart: "no"
+    command: ["sh", "-c", "npm run db:deploy && npm run admin:seed"]
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:?Set POSTGRES_USER in .env}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@database:5432/${POSTGRES_DB:?Set POSTGRES_DB in .env}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+      SEED_ADMIN_FULL_NAME: ${SEED_ADMIN_FULL_NAME:-}
     depends_on:
       database:
         condition: service_healthy

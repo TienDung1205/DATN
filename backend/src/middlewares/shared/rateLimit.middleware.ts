@@ -1,6 +1,7 @@
 import { rateLimit } from 'express-rate-limit';
 import type { Application, Response } from 'express';
 import type { UserAuthConfig } from '../../config/userAuth.js';
+import type { AdminAuthConfig } from '../../config/adminAuth.js';
 import type { ApiResponse } from '../../types/apiResponse.js';
 import { getAppValue, perAppMiddleware } from '../../utils/appContext.js';
 
@@ -41,7 +42,24 @@ function createUserRefreshLimit(app: Application) {
 
 export const userRefreshLimit = perAppMiddleware(createUserRefreshLimit);
 
+function createAdminLoginLimit(app: Application) {
+  const config = getAppValue<AdminAuthConfig>(app, 'adminAuthConfig');
+  return authRateLimit(config.AUTH_RATE_LIMIT_WINDOW_SECONDS, config.ADMIN_LOGIN_RATE_LIMIT);
+}
+
+function createAdminRefreshLimit(app: Application) {
+  const config = getAppValue<AdminAuthConfig>(app, 'adminAuthConfig');
+  return authRateLimit(config.AUTH_RATE_LIMIT_WINDOW_SECONDS, config.ADMIN_REFRESH_RATE_LIMIT);
+}
+
+export const adminLoginLimit = perAppMiddleware(createAdminLoginLimit);
+export const adminRefreshLimit = perAppMiddleware(createAdminRefreshLimit);
+
 export function initializeRateLimits(app: Application): void {
+  if (app.locals.adminAuthConfig) {
+    adminLoginLimit.initialize(app);
+    adminRefreshLimit.initialize(app);
+  }
   if (app.locals.userAuthConfig) {
     userLoginLimit.initialize(app);
     userRefreshLimit.initialize(app);

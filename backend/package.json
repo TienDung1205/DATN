@@ -16,7 +16,8 @@
     "test": "tsx --test tests/*.test.ts",
     "db:generate": "prisma generate",
     "db:deploy": "prisma migrate deploy",
-    "auth:setup": "node scripts/setup-user-auth.mjs"
+    "auth:setup": "node scripts/setup-user-auth.mjs",
+    "admin:seed": "node dist/scripts/seedAdmin.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
