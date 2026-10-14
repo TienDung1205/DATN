@@ -38,14 +38,14 @@ function createQueries(db: Prisma.TransactionClient) {
 
   function revokeFamily(userId: bigint, familyId: string, now: Date) {
     return db.refreshSession.updateMany({
-      where: { userId, familyId, revokedAt: null },
+      where: { userId, adminId: null, familyId, revokedAt: null },
       data: { revokedAt: now },
     });
   }
 
   function revokeAll(userId: bigint, now: Date) {
     return db.refreshSession.updateMany({
-      where: { userId, revokedAt: null },
+      where: { userId, adminId: null, revokedAt: null },
       data: { revokedAt: now },
     });
   }
