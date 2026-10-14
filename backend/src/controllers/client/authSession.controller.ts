@@ -5,7 +5,7 @@ import { getAppValue } from '../../utils/appContext.js';
 
 type RegisterRequest = Request<Record<string, string>, RegisterResponse, RegisterInput>;
 
-// [POST] /api/v1/auth/register
+// [POST] /auth/register
 export const register = async (
   req: RegisterRequest,
   res: Response<RegisterResponse>,

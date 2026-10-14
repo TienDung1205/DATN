@@ -1,9 +1,7 @@
 import type { Express } from 'express';
 import * as systemConfig from '../../config/system.js';
-import clientAuthRouter from './auth.routes.js';
+import { authRoutes } from './auth.routes.js';
 
-const clientRoutesApiVer1 = (app: Express): void => {
-  app.use(systemConfig.prefixApi + '/auth', clientAuthRouter);
+export const clientRoutesApiVer1 = (app: Express): void => {
+  app.use(systemConfig.prefixApi + '/auth', authRoutes);
 };
-
-export default clientRoutesApiVer1;

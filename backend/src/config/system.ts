@@ -1,2 +1,2 @@
-export const prefixApi = '/api/v1';
+export const prefixApi = '';
 export const prefixAdmin = '/admin';

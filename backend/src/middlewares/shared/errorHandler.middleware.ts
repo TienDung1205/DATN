@@ -44,7 +44,7 @@ export const notFoundHandler: RequestHandler = (_req, _res, next) => {
   next(error);
 };
 
-export const errorHandler: ErrorRequestHandler = (
+export const errorHandler: ErrorRequestHandler<Record<string, string>, ApiResponse> = (
   error: unknown,
   req,
   res,

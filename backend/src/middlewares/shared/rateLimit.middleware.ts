@@ -1,6 +1,7 @@
 import { rateLimit } from 'express-rate-limit';
-import type { Application } from 'express';
+import type { Application, Response } from 'express';
 import type { UserAuthConfig } from '../../config/userAuth.js';
+import type { ApiResponse } from '../../types/apiResponse.js';
 import { getAppValue, perAppMiddleware } from '../../utils/appContext.js';
 
 export function authRateLimit(windowSeconds: number, limit: number) {
@@ -11,7 +12,7 @@ export function authRateLimit(windowSeconds: number, limit: number) {
     limit,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
-    handler: (_req, res, _next, options) => {
+    handler: (_req, res: Response<ApiResponse>, _next, options) => {
       res.status(options.statusCode).json({
         success: false,
         message: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
