@@ -5,7 +5,7 @@ import { AppError } from '../../../errors/appError.js';
 import type { UserAuthRepository } from '../../../repositories/client/auth.repository.js';
 import { hashPassword } from '../../../utils/password.js';
 
-export function createUserSessions(repository: UserAuthRepository) {
+export function createUserSessions(repository: Pick<UserAuthRepository, 'createUser'>) {
   async function register(input: RegisterInput): Promise<RegisterOutput> {
     const password = await hashPassword(input.password);
 
