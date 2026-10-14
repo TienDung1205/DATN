@@ -5,9 +5,9 @@ export const strongPasswordSchema = z
   .string()
   .regex(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/,
-    'Mật khẩu phải tối thiểu 8 ký tự bao gồm chữ hoa, chữ thường, chữ số và ký tự đặc biệt',
+    'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, chữ số và ký tự đặc biệt!',
   )
-  .max(128, 'Mật khẩu tối đa 128 ký tự');
+  .max(128, 'Mật khẩu không hợp lệ.');
 
 export function hashPassword(password: string): Promise<string> {
   return argon2.hash(password, {
@@ -18,9 +18,6 @@ export function hashPassword(password: string): Promise<string> {
   });
 }
 
-export function verifyPassword(
-  hash: string,
-  password: string,
-): Promise<boolean> {
+export function verifyPassword(hash: string, password: string): Promise<boolean> {
   return argon2.verify(hash, password);
 }

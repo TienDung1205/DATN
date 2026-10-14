@@ -6,6 +6,7 @@ RUN npm ci
 
 COPY tsconfig*.json prisma.config.ts ./
 COPY prisma ./prisma
+COPY scripts ./scripts
 COPY src ./src
 RUN npm run build
 

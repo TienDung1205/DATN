@@ -19,3 +19,30 @@ export interface RegisterOutput {
 }
 
 export type RegisterResponse = ApiResponse<RegisterOutput>;
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export interface LoginOutput {
+  accessToken: string;
+  expiresIn: number;
+  user: RegisterOutput;
+}
+
+export interface UserSessionResult {
+  refreshToken: string;
+  data: LoginOutput;
+}
+
+export interface UserPrincipal {
+  userId: bigint;
+  sessionId: bigint;
+  profile: RegisterOutput;
+}
+
+export type LoginResponse = ApiResponse<LoginOutput>;
+export type RefreshResponse = ApiResponse<LoginOutput>;
+export type LogoutResponse = ApiResponse<null>;
+export type MeResponse = ApiResponse<RegisterOutput>;

@@ -21,7 +21,7 @@ try {
 
   try {
     await database.check();
-    const application = createApplication(config, logger, database);
+    const application = await createApplication(config, logger, database);
     const { app } = application;
     const port = config.BACKEND_PORT;
     const host = config.HOST;
