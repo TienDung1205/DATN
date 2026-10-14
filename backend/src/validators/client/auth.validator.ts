@@ -1,6 +1,11 @@
 import * as z from 'zod';
-import type { RegisterInput } from '../../dto/client/auth.dto.js';
+import type { LoginInput, RegisterInput } from '../../dto/client/auth.dto.js';
 import * as passwordUtils from '../../utils/password.js';
+
+export const loginSchema: z.ZodType<LoginInput> = z.strictObject({
+  email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
+  password: z.string().min(1, 'Vui lòng nhập mật khẩu.').max(128, 'Mật khẩu không hợp lệ.'),
+});
 
 const name = z.string().trim().min(1).max(120);
 const phone = z

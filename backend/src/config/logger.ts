@@ -8,6 +8,7 @@ const SENSITIVE_LOG_FIELDS = [
   'accessToken',
   'refreshToken',
   'token_hash',
+  'tokenHash',
   'authorization',
   'cookie',
   'req.headers',
