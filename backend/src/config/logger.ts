@@ -20,10 +20,7 @@ function serializeErrorForLog() {
   return { type: 'InternalError' };
 }
 
-export function createLogger(
-  config: AppConfig,
-  destination?: DestinationStream,
-): Logger {
+export function createLogger(config: AppConfig, destination?: DestinationStream): Logger {
   const options: LoggerOptions = {
     level: config.LOG_LEVEL,
     base: {

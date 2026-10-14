@@ -31,22 +31,15 @@ function isValidFrontendOrigin(value: string): boolean {
   return true;
 }
 
-const frontendOriginSchema = z
-  .url()
-  .refine(isValidFrontendOrigin)
-  .transform((value) => new URL(value).origin);
+const frontendOriginSchema = z.url().refine(isValidFrontendOrigin).transform((value) => new URL(value).origin);
 
 const appConfigSchema = z.object({
-  NODE_ENV: z
-    .enum(['development', 'test', 'production'])
-    .default('development'),
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   HOST: z.string().trim().min(1).default('127.0.0.1'),
   BACKEND_PORT: createIntegerSchema(8000, 1, 65_535),
   FRONTEND_PORT: createIntegerSchema(5173, 1, 65_535),
   FRONTEND_ORIGIN: frontendOriginSchema.optional(),
-  LOG_LEVEL: z
-    .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
-    .default('info'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   BODY_LIMIT_BYTES: createIntegerSchema(102_400, 1, 10_485_760),
   SHUTDOWN_TIMEOUT_MS: createIntegerSchema(10_000, 100, 60_000),
 });

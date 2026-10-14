@@ -2,8 +2,7 @@ import * as z from 'zod';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { PrismaClient } from '../generated/prisma/client.js';
-import { createDatabase } from '../config/database.js';
-import { readDatabaseConfig } from '../config/databaseConfig.js';
+import { createDatabase, readDatabaseConfig } from '../config/database.js';
 import { hashPassword, strongPasswordSchema } from '../utils/password.js';
 
 const SEED_LOCK_ID = 186003;
