@@ -45,10 +45,10 @@ try {
       value = existingValues.get(key);
     }
 
-    const isUserSecret = key === 'USER_ACCESS_TOKEN_SECRET';
+    const isAccessTokenSecret = key === 'USER_ACCESS_TOKEN_SECRET' || key === 'ADMIN_ACCESS_TOKEN_SECRET';
     const isSampleSecret = /^(?:CHANGE_ME|'CHANGE_ME'|"CHANGE_ME")$/.test(value.trim());
 
-    if (isUserSecret && (!hasExistingValue || isSampleSecret)) {
+    if (isAccessTokenSecret && (!hasExistingValue || isSampleSecret)) {
       value = randomBytes(32).toString('hex');
     }
 

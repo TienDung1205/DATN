@@ -4,6 +4,7 @@ import type { AppConfig } from './env.js';
 import type { createDatabase } from './database.js';
 import { createAuthServices } from './authServices.js';
 import { clientRoutesApiVer1 } from '../routes/client/index.routes.js';
+import { adminRoutesApiVer1 } from '../routes/admin/index.routes.js';
 
 export async function createApplication(config: AppConfig, logger: Logger, database: ReturnType<typeof createDatabase>) {
   const authServices = await createAuthServices(database.client);
@@ -11,6 +12,7 @@ export async function createApplication(config: AppConfig, logger: Logger, datab
   const app = createApp(config, logger, database.check, (app) => {
     Object.assign(app.locals, authServices);
     clientRoutesApiVer1(app);
+    adminRoutesApiVer1(app);
   });
 
   return { app };
