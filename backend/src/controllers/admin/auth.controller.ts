@@ -3,7 +3,7 @@ import type * as AuthDto from '../../dto/admin/auth.dto.js';
 import type { AdminAuthService } from '../../services/admin/auth/auth.service.js';
 import { AppError } from '../../errors/appError.js';
 import { getAppValue } from '../../utils/appContext.js';
-import { clearCookie, readToken, setCookie } from '../../utils/adminAuthCookies.js';
+import { clearCookie, readToken, setCookie } from '../../utils/authCookies.js';
 
 type LoginRequest = Request<Record<string, string>, AuthDto.LoginResponse, AuthDto.LoginInput>;
 
@@ -13,11 +13,8 @@ export const login = async (req: LoginRequest, res: Response<AuthDto.LoginRespon
     const adminAuthService = getAppValue<AdminAuthService>(req.app, 'adminAuthService');
     const result = await adminAuthService.login(req.body);
 
-    setCookie(req, res, result.refreshToken);
-    req.log.info(
-      { event: 'admin_login', adminId: result.data.admin.id },
-      'Admin signed in',
-    );
+    setCookie(req, res, result.refreshToken, 'admin');
+    req.log.info({ event: 'admin_login', adminId: result.data.admin.id }, 'Admin signed in');
 
     res.json({
       success: true,
@@ -33,15 +30,15 @@ export const login = async (req: LoginRequest, res: Response<AuthDto.LoginRespon
 export const refresh = async (req: Request, res: Response<AuthDto.RefreshResponse>, next: NextFunction) => {
   try {
     const adminAuthService = getAppValue<AdminAuthService>(req.app, 'adminAuthService');
-    const token = readToken(req);
+    const token = readToken(req, 'admin');
 
     if (!token) {
-      clearCookie(req, res);
+      clearCookie(req, res, 'admin');
       throw new AppError(401, 'Vui lòng đăng nhập lại.');
     }
 
     const result = await adminAuthService.refresh(token);
-    setCookie(req, res, result.refreshToken);
+    setCookie(req, res, result.refreshToken, 'admin');
 
     res.json({
       success: true,
@@ -50,7 +47,7 @@ export const refresh = async (req: Request, res: Response<AuthDto.RefreshRespons
     });
   } catch (error) {
     if (error instanceof AppError && error.statusCode === 401) {
-      clearCookie(req, res);
+      clearCookie(req, res, 'admin');
     }
 
     next(error);

@@ -4,21 +4,16 @@ import type { Logger } from 'pino';
 import type { AppConfig } from './config/env.js';
 import { createLogger } from './config/logger.js';
 import { URL_PARAMETER_LIMIT } from './constants/http.js';
-import { createCors } from './middlewares/shared/cors.middleware.js';
-import {
-  notFoundHandler,
-  errorHandler,
-} from './middlewares/shared/errorHandler.middleware.js';
+import { createCors } from './middlewares/shared/origin.middleware.js';
+import { notFoundHandler, errorHandler } from './middlewares/shared/errorHandler.middleware.js';
 import { requestLogger } from './middlewares/shared/requestLogger.middleware.js';
 import { initializeRateLimits } from './middlewares/shared/rateLimit.middleware.js';
 import { healthRoutes } from './routes/shared/health.routes.js';
 
-export const createApp = (
-  config: AppConfig,
-  logger: Logger = createLogger(config),
-  checkDatabase?: () => Promise<void>,
-  registerRoutes?: (app: Express) => void,
-): Express => {
+type DatabaseHealthCheck = () => Promise<void>;
+type RegisterRoutes = (app: Express) => void;
+
+export const createApp = (config: AppConfig, logger: Logger = createLogger(config), checkDatabase?: DatabaseHealthCheck, registerRoutes?: RegisterRoutes): Express => {
   const app: Express = express();
   app.locals.appConfig = config;
   app.locals.checkDatabase = checkDatabase;
@@ -33,13 +28,11 @@ export const createApp = (
   app.use(express.json({ limit: config.BODY_LIMIT_BYTES }));
 
   // Đọc dữ liệu form.
-  app.use(
-    express.urlencoded({
-      extended: false,
-      limit: config.BODY_LIMIT_BYTES,
-      parameterLimit: URL_PARAMETER_LIMIT,
-    }),
-  );
+  app.use(express.urlencoded({
+    extended: false,
+    limit: config.BODY_LIMIT_BYTES,
+    parameterLimit: URL_PARAMETER_LIMIT,
+  }));
 
   // Health và kiểm tra kết nối database.
   app.use(healthRoutes);

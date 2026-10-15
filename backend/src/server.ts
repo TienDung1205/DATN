@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import { createApplication } from './config/application.js';
-import { createDatabase } from './config/database.js';
-import { readDatabaseConfig } from './config/databaseConfig.js';
+import { createDatabase, readDatabaseConfig } from './config/database.js';
 import { readConfig } from './config/env.js';
 import { createLogger } from './config/logger.js';
 import { configureServerLifecycle } from './config/serverLifecycle.js';
@@ -27,10 +26,7 @@ try {
     const host = config.HOST;
 
     const server = app.listen(port, host, () => {
-      logger.info(
-        { event: 'server_started', host, port },
-        'Server is running at http://' + host + ':' + port,
-      );
+      logger.info({ event: 'server_started', host, port }, 'Server is running at http://' + host + ':' + port);
     });
     configureServerLifecycle(server, config, logger, closeResources);
   } catch (error) {

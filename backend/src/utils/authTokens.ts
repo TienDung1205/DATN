@@ -1,7 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { SignJWT, jwtVerify } from 'jose';
-import type { UserAuthConfig } from '../config/userAuth.js';
-import type { AdminAuthConfig } from '../config/adminAuth.js';
+import type { UserAuthConfig, AdminAuthConfig } from '../config/auth.js';
 import { AppError } from '../errors/appError.js';
 
 const USER_AUDIENCE = 'storefront';

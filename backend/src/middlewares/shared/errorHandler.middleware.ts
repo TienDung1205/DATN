@@ -10,46 +10,26 @@ function getRequestBodyError(error: unknown): AppError | undefined {
 
   switch (error.type) {
     case 'entity.parse.failed':
-      return new AppError(
-        HTTP_STATUS.BAD_REQUEST,
-        'Nội dung JSON không hợp lệ.',
-      );
+      return new AppError(HTTP_STATUS.BAD_REQUEST, 'Nội dung JSON không hợp lệ.');
     case 'entity.too.large':
     case 'parameters.too.many':
-      return new AppError(
-        HTTP_STATUS.PAYLOAD_TOO_LARGE,
-        'Dữ liệu gửi lên quá lớn.',
-      );
+      return new AppError(HTTP_STATUS.PAYLOAD_TOO_LARGE, 'Dữ liệu gửi lên quá lớn.');
     case 'encoding.unsupported':
     case 'charset.unsupported':
-      return new AppError(
-        HTTP_STATUS.UNSUPPORTED_MEDIA_TYPE,
-        'Định dạng dữ liệu không được hỗ trợ.',
-      );
+      return new AppError(HTTP_STATUS.UNSUPPORTED_MEDIA_TYPE, 'Định dạng dữ liệu không được hỗ trợ.');
     case 'request.aborted':
     case 'request.size.invalid':
-      return new AppError(
-        HTTP_STATUS.BAD_REQUEST,
-        'Yêu cầu chưa đầy đủ hoặc không hợp lệ.',
-      );
+      return new AppError(HTTP_STATUS.BAD_REQUEST, 'Yêu cầu chưa đầy đủ hoặc không hợp lệ.');
   }
 }
 
 export const notFoundHandler: RequestHandler = (_req, _res, next) => {
-  const error = new AppError(
-    HTTP_STATUS.NOT_FOUND,
-    'Không tìm thấy tài nguyên.',
-  );
+  const error = new AppError(HTTP_STATUS.NOT_FOUND, 'Không tìm thấy tài nguyên.');
 
   next(error);
 };
 
-export const errorHandler: ErrorRequestHandler<Record<string, string>, ApiResponse> = (
-  error: unknown,
-  req,
-  res,
-  next,
-) => {
+export const errorHandler: ErrorRequestHandler<Record<string, string>, ApiResponse> = (error: unknown, req, res, next) => {
   if (res.headersSent) {
     next(error);
     return;
@@ -63,11 +43,7 @@ export const errorHandler: ErrorRequestHandler<Record<string, string>, ApiRespon
     knownError = getRequestBodyError(error);
   }
 
-  if (
-    knownError &&
-    knownError.statusCode >= 400 &&
-    knownError.statusCode < 500
-  ) {
+  if (knownError && knownError.statusCode >= 400 && knownError.statusCode < 500) {
     const response: ApiResponse = {
       success: false,
       message: knownError.message,
@@ -81,10 +57,7 @@ export const errorHandler: ErrorRequestHandler<Record<string, string>, ApiRespon
     return;
   }
 
-  req.log?.error(
-    { event: 'unhandled_request_error', requestId: req.id },
-    'Request failed',
-  );
+  req.log?.error({ event: 'unhandled_request_error', requestId: req.id }, 'Request failed');
 
   res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
     success: false,

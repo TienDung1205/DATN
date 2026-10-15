@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import type { Admin } from '../../../generated/prisma/client.js';
-import type { AdminAuthConfig } from '../../../config/adminAuth.js';
+import type { AdminAuthConfig } from '../../../config/auth.js';
 import type * as AuthDto from '../../../dto/admin/auth.dto.js';
 import type { AdminAuthRepository, AdminStore } from '../../../repositories/admin/auth.repository.js';
 import { AppError } from '../../../errors/appError.js';
 import { toAdminOutput } from '../../../mappers/admin/auth.mapper.js';
 import { createAdminTokens, hashRefreshToken, newRefreshToken } from '../../../utils/authTokens.js';
 import { hashPassword, verifyPassword } from '../../../utils/password.js';
-import { invalidLogin, invalidSession } from '../../../utils/userAuthErrors.js';
+import { invalidLogin, invalidSession } from '../../../utils/authErrors.js';
 
 type RefreshResult = { value: AuthDto.AdminSessionResult } | { error: AppError };
 
@@ -85,21 +85,13 @@ export async function createAdminAuthService(repository: AdminAuthRepository, co
     if (session.revokedAt) {
       await store.revokeFamily(adminId, session.familyId, now);
 
-      const error = new AppError(
-        401,
-        'Refresh token đã được sử dụng. Vui lòng đăng nhập lại.',
-        [{ message: 'REFRESH_TOKEN_REUSED' }],
-      );
+      const error = new AppError(401, 'Refresh token đã được sử dụng. Vui lòng đăng nhập lại.', [{ message: 'REFRESH_TOKEN_REUSED' }]);
 
       return { error };
     }
 
     if (session.expiresAt <= now) {
-      const error = new AppError(
-        401,
-        'Phiên đã hết hạn. Vui lòng đăng nhập lại.',
-        [{ message: 'REFRESH_TOKEN_EXPIRED' }],
-      );
+      const error = new AppError(401, 'Phiên đã hết hạn. Vui lòng đăng nhập lại.', [{ message: 'REFRESH_TOKEN_EXPIRED' }]);
 
       return { error };
     }

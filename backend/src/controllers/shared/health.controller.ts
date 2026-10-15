@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import type { ApiResponse } from '../../types/apiResponse.js';
-import * as appContextUtils from '../../utils/appContext.js';
+import { getAppValue } from '../../utils/appContext.js';
 
 type DatabaseHealthCheck = () => Promise<void>;
 type HealthResponse = ApiResponse<{ status: 'ok' }>;
@@ -27,10 +27,7 @@ export const health = async (req: Request, res: Response<HealthResponse>) => {
 // [GET] /ready
 export const ready = async (req: Request, res: Response<ReadyResponse>) => {
   try {
-    const checkDatabase = appContextUtils.getAppValue<DatabaseHealthCheck>(
-      req.app,
-      'checkDatabase',
-    );
+    const checkDatabase = getAppValue<DatabaseHealthCheck>(req.app, 'checkDatabase');
 
     await checkDatabase();
 
