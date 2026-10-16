@@ -90,9 +90,39 @@ export async function createUserAuthService(repository: UserAuthRepository, conf
 
   async function authenticate(accessToken: string): Promise<AuthDto.UserPrincipal> {
     const { userId, sessionId } = await tokens.verify(accessToken);
+    const user = await getCurrentUser(repository, userId, sessionId);
+    const profile = toUserOutput(user);
+
+    return { userId, sessionId, profile };
+  }
+
+  async function changePassword(principal: AuthDto.UserPrincipal, input: AuthDto.ChangePasswordInput): Promise<void> {
+    const { userId, sessionId } = principal;
+    const user = await getCurrentUser(repository, userId, sessionId);
+    const validPassword = await verifyPassword(user.password, input.currentPassword);
+
+    if (!validPassword) {
+      throw new AppError(400, 'Mật khẩu hiện tại không đúng.');
+    }
+
+    const password = await hashPassword(input.newPassword);
+
+    await repository.withUserLock(userId, async (store) => {
+      const freshUser = await getCurrentUser(store, userId, sessionId);
+
+      if (freshUser.password !== user.password) {
+        throw invalidSession();
+      }
+
+      await store.changePassword(userId, password);
+      await store.revokeAll(userId, new Date());
+    });
+  }
+
+  async function getCurrentUser(store: UserStore, userId: bigint, sessionId: bigint): Promise<User> {
     const [user, session] = await Promise.all([
-      repository.findUser(userId),
-      repository.findSession(sessionId),
+      store.findUser(userId),
+      store.findSession(sessionId),
     ]);
 
     if (!user || user.status !== 'ACTIVE') {
@@ -111,8 +141,7 @@ export async function createUserAuthService(repository: UserAuthRepository, conf
       throw invalidSession();
     }
 
-    const profile = toUserOutput(user);
-    return { userId, sessionId, profile };
+    return user;
   }
 
   async function createLoginSession(store: UserStore, user: User): Promise<AuthDto.UserSessionResult> {
@@ -200,7 +229,7 @@ export async function createUserAuthService(repository: UserAuthRepository, conf
     };
   }
 
-  return { register, login, refresh, logout, authenticate };
+  return { register, login, refresh, logout, authenticate, changePassword };
 }
 
 export type UserAuthService = Awaited<ReturnType<typeof createUserAuthService>>;

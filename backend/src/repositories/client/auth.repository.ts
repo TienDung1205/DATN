@@ -20,6 +20,13 @@ function createQueries(db: Prisma.TransactionClient) {
     return db.user.create({ data });
   }
 
+  function changePassword(id: bigint, password: string) {
+    return db.user.update({
+      where: { id },
+      data: { password },
+    });
+  }
+
   function findSession(id: bigint) {
     return db.refreshSession.findUnique({ where: { id } });
   }
@@ -65,6 +72,7 @@ function createQueries(db: Prisma.TransactionClient) {
     findUser,
     findUserByEmail,
     createUser,
+    changePassword,
     findSession,
     findSessionByHash,
     lockSession,

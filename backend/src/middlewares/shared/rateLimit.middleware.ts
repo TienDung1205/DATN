@@ -55,6 +55,7 @@ function createAdminRefreshLimit(app: Application) {
 
 export const userLoginLimit = perAppMiddleware(createUserLoginLimit);
 export const userRefreshLimit = perAppMiddleware(createUserRefreshLimit);
+export const userPasswordLimit = perAppMiddleware(createUserLoginLimit);
 export const adminLoginLimit = perAppMiddleware(createAdminLoginLimit);
 export const adminRefreshLimit = perAppMiddleware(createAdminRefreshLimit);
 
@@ -62,6 +63,7 @@ export function initializeRateLimits(app: Application): void {
   if (app.locals.userAuthConfig) {
     userLoginLimit.initialize(app);
     userRefreshLimit.initialize(app);
+    userPasswordLimit.initialize(app);
   }
 
   if (app.locals.adminAuthConfig) {
