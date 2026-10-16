@@ -9,3 +9,7 @@ export interface UpdateProfileInput {
 
 export type UpdateProfileOutput = UserOutput;
 export type UpdateProfileResponse = ApiResponse<UpdateProfileOutput>;
+
+export interface UpdateProfileMultipartInput extends UpdateProfileInput {
+  image?: Express.Multer.File | undefined;
+}

@@ -15,7 +15,7 @@ export const updateProfile = async (req: UpdateProfileRequest, res: Response<Acc
   try {
     const accountService = getAppValue<UserAccountService>(req.app, 'userAccountService');
     const principal = getUserPrincipal(res);
-    const profile = await accountService.updateProfile(principal, req.body);
+    const profile = await accountService.updateProfile(principal, req.body, req.file);
 
     req.log.info({ event: 'user_profile_updated', userId: profile.id }, 'User profile updated');
 
