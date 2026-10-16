@@ -1,5 +1,8 @@
 import * as z from 'zod';
-import type { LoginInput } from '../../dto/admin/auth.dto.js';
+import type { ChangePasswordInput, LoginInput } from '../../dto/admin/auth.dto.js';
+import * as passwordUtils from '../../utils/password.js';
+
+export const changePasswordSchema: z.ZodType<ChangePasswordInput> = passwordUtils.changePasswordSchema;
 
 export const loginSchema: z.ZodType<LoginInput> = z.strictObject({
   email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
