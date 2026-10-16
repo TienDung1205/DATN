@@ -6,6 +6,7 @@ import { readUserAuthConfig, readAdminAuthConfig } from './auth.js';
 import { createUserAuthRepository } from '../repositories/client/auth.repository.js';
 import { createAdminAuthRepository } from '../repositories/admin/auth.repository.js';
 import { createUserAuthService } from '../services/client/auth/auth.service.js';
+import { createUserAccountService } from '../services/client/account.service.js';
 import { createAdminAuthService } from '../services/admin/auth/auth.service.js';
 import { clientRoutes } from '../routes/client/index.routes.js';
 import { adminRoutes } from '../routes/admin/index.routes.js';
@@ -17,6 +18,7 @@ export async function createApplication(config: AppConfig, logger: Logger, datab
   const userRepository = createUserAuthRepository(database.client);
   const adminRepository = createAdminAuthRepository(database.client);
   const userAuthService = await createUserAuthService(userRepository, userAuthConfig);
+  const userAccountService = createUserAccountService(userRepository);
   const adminAuthService = await createAdminAuthService(adminRepository, adminAuthConfig);
 
   const app = createApp(config, logger, database.check, (app) => {
@@ -24,6 +26,7 @@ export async function createApplication(config: AppConfig, logger: Logger, datab
       userAuthConfig,
       adminAuthConfig,
       userAuthService,
+      userAccountService,
       adminAuthService,
     });
     clientRoutes(app);
