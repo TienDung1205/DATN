@@ -8,6 +8,7 @@ import { createAdminAuthRepository } from '../repositories/admin/auth.repository
 import { createUserAuthService } from '../services/client/auth/auth.service.js';
 import { createUserAccountService } from '../services/client/account.service.js';
 import { createAdminAuthService } from '../services/admin/auth/auth.service.js';
+import { createAdminAccountService } from '../services/admin/account.service.js';
 import { clientRoutes } from '../routes/client/index.routes.js';
 import { adminRoutes } from '../routes/admin/index.routes.js';
 import { readMediaConfig } from './media.js';
@@ -24,6 +25,7 @@ export async function createApplication(config: AppConfig, logger: Logger, datab
   const userAuthService = await createUserAuthService(userRepository, userAuthConfig);
   const userAccountService = createUserAccountService(userRepository, mediaService);
   const adminAuthService = await createAdminAuthService(adminRepository, adminAuthConfig);
+  const adminAccountService = createAdminAccountService(adminRepository);
 
   const app = createApp(config, logger, database.check, (app) => {
     Object.assign(app.locals, {
@@ -33,6 +35,7 @@ export async function createApplication(config: AppConfig, logger: Logger, datab
       userAuthService,
       userAccountService,
       adminAuthService,
+      adminAccountService,
     });
     clientRoutes(app);
     adminRoutes(app);
