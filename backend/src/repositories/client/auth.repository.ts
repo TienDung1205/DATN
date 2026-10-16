@@ -1,4 +1,5 @@
 import type { Prisma, PrismaClient } from '../../generated/prisma/client.js';
+import type { UpdateProfileInput } from '../../dto/client/account.dto.js';
 
 interface CreateUserData {
   email: string;
@@ -24,6 +25,25 @@ function createQueries(db: Prisma.TransactionClient) {
     return db.user.update({
       where: { id },
       data: { password },
+    });
+  }
+
+  function updateProfile(id: bigint, input: UpdateProfileInput) {
+    const data: Prisma.UserUpdateInput = {};
+
+    if (input.fullName !== undefined) {
+      data.fullName = input.fullName;
+    }
+    if (input.phone !== undefined) {
+      data.phone = input.phone;
+    }
+    if (input.avatar !== undefined) {
+      data.avatar = input.avatar;
+    }
+
+    return db.user.update({
+      where: { id },
+      data,
     });
   }
 
@@ -73,6 +93,7 @@ function createQueries(db: Prisma.TransactionClient) {
     findUserByEmail,
     createUser,
     changePassword,
+    updateProfile,
     findSession,
     findSessionByHash,
     lockSession,
