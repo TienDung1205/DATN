@@ -47,6 +47,56 @@ export async function createAdminAuthService(repository: AdminAuthRepository, co
     return result.value;
   }
 
+  async function authenticate(accessToken: string): Promise<AuthDto.AdminPrincipal> {
+    const { adminId, sessionId } = await tokens.verify(accessToken);
+    const admin = await getCurrentAdmin(repository, adminId, sessionId);
+    const profile = toAdminOutput(admin);
+
+    return { adminId, sessionId, profile };
+  }
+
+  async function changePassword(principal: AuthDto.AdminPrincipal, input: AuthDto.ChangePasswordInput): Promise<void> {
+    const { adminId, sessionId } = principal;
+    const admin = await getCurrentAdmin(repository, adminId, sessionId);
+    const validPassword = await verifyPassword(admin.password, input.currentPassword);
+
+    if (!validPassword) {
+      throw new AppError(400, 'Mật khẩu hiện tại không đúng.');
+    }
+
+    const password = await hashPassword(input.newPassword);
+
+    await repository.withAdminLock(adminId, async (store) => {
+      const freshAdmin = await getCurrentAdmin(store, adminId, sessionId);
+
+      if (freshAdmin.password !== admin.password) {
+        throw invalidSession();
+      }
+
+      await store.changePassword(adminId, password);
+      await store.revokeAll(adminId, new Date());
+    });
+  }
+
+  async function getCurrentAdmin(store: AdminStore, adminId: bigint, sessionId: bigint): Promise<Admin> {
+    const [admin, session] = await Promise.all([
+      store.findAdmin(adminId),
+      store.findSession(sessionId),
+    ]);
+
+    if (!admin || admin.status !== 'ACTIVE') {
+      throw invalidSession();
+    }
+    if (!session || session.adminId !== adminId || session.userId !== null) {
+      throw invalidSession();
+    }
+    if (session.revokedAt || session.expiresAt <= new Date()) {
+      throw invalidSession();
+    }
+
+    return admin;
+  }
+
   async function createLoginSession(store: AdminStore, admin: Admin): Promise<AuthDto.AdminSessionResult> {
     const freshAdmin = await store.findAdmin(admin.id);
 
@@ -132,7 +182,7 @@ export async function createAdminAuthService(repository: AdminAuthRepository, co
     };
   }
 
-  return { login, refresh };
+  return { login, refresh, authenticate, changePassword };
 }
 
 export type AdminAuthService = Awaited<ReturnType<typeof createAdminAuthService>>;

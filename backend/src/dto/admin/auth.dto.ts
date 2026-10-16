@@ -6,6 +6,21 @@ export interface LoginInput {
   password: string;
 }
 
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export type ChangePasswordOutput = null;
+export type ChangePasswordResponse = ApiResponse<ChangePasswordOutput>;
+
+export interface AdminPrincipal {
+  adminId: bigint;
+  sessionId: bigint;
+  profile: AdminOutput;
+}
+
 export interface AdminOutput {
   id: string;
   email: string;

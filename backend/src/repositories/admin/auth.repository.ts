@@ -9,6 +9,13 @@ function createQueries(db: Prisma.TransactionClient) {
     return db.admin.findUnique({ where: { email } });
   }
 
+  function changePassword(id: bigint, password: string) {
+    return db.admin.update({
+      where: { id },
+      data: { password },
+    });
+  }
+
   function findSession(id: bigint) {
     return db.refreshSession.findUnique({ where: { id } });
   }
@@ -53,6 +60,7 @@ function createQueries(db: Prisma.TransactionClient) {
   return {
     findAdmin,
     findAdminByEmail,
+    changePassword,
     findSession,
     findSessionByHash,
     lockSession,
