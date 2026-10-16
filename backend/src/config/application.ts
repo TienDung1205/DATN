@@ -7,8 +7,8 @@ import { createUserAuthRepository } from '../repositories/client/auth.repository
 import { createAdminAuthRepository } from '../repositories/admin/auth.repository.js';
 import { createUserAuthService } from '../services/client/auth/auth.service.js';
 import { createAdminAuthService } from '../services/admin/auth/auth.service.js';
-import { clientRoutesApiVer1 } from '../routes/client/index.routes.js';
-import { adminRoutesApiVer1 } from '../routes/admin/index.routes.js';
+import { clientRoutes } from '../routes/client/index.routes.js';
+import { adminRoutes } from '../routes/admin/index.routes.js';
 
 export async function createApplication(config: AppConfig, logger: Logger, database: ReturnType<typeof createDatabase>) {
   const userAuthConfig = readUserAuthConfig(process.env);
@@ -26,8 +26,8 @@ export async function createApplication(config: AppConfig, logger: Logger, datab
       userAuthService,
       adminAuthService,
     });
-    clientRoutesApiVer1(app);
-    adminRoutesApiVer1(app);
+    clientRoutes(app);
+    adminRoutes(app);
   });
 
   return { app };

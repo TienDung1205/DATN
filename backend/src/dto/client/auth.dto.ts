@@ -25,6 +25,15 @@ export interface LoginInput {
   password: string;
 }
 
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export type ChangePasswordOutput = null;
+export type ChangePasswordResponse = ApiResponse<ChangePasswordOutput>;
+
 export interface AuthSessionOutput {
   accessToken: string;
   expiresIn: number;

@@ -1,10 +1,22 @@
 import * as z from 'zod';
-import type { LoginInput, RegisterInput } from '../../dto/client/auth.dto.js';
+import type { ChangePasswordInput, LoginInput, RegisterInput } from '../../dto/client/auth.dto.js';
 import * as passwordUtils from '../../utils/password.js';
 
 export const loginSchema: z.ZodType<LoginInput> = z.strictObject({
   email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
   password: z.string().min(1, 'Vui lòng nhập mật khẩu.').max(128, 'Mật khẩu không hợp lệ.'),
+});
+
+export const changePasswordSchema: z.ZodType<ChangePasswordInput> = z.strictObject({
+  currentPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại.').max(128, 'Mật khẩu không hợp lệ.'),
+  newPassword: passwordUtils.strongPasswordSchema,
+  confirmPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu mới.').max(128, 'Mật khẩu không hợp lệ.'),
+}).refine((value) => value.currentPassword !== value.newPassword, {
+  path: ['newPassword'],
+  message: 'Mật khẩu mới phải khác mật khẩu hiện tại.',
+}).refine((value) => value.newPassword === value.confirmPassword, {
+  path: ['confirmPassword'],
+  message: 'Hai mật khẩu chưa khớp.',
 });
 
 const name = z.string().trim().min(1).max(120);
