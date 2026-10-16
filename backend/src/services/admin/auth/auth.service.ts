@@ -47,6 +47,24 @@ export async function createAdminAuthService(repository: AdminAuthRepository, co
     return result.value;
   }
 
+  async function logout(refreshToken?: string): Promise<void> {
+    if (!refreshToken) {
+      return;
+    }
+
+    const tokenHash = hashRefreshToken(refreshToken);
+    const session = await repository.findSessionByHash(tokenHash);
+
+    if (!session || session.adminId === null || session.userId !== null) {
+      return;
+    }
+
+    const adminId = session.adminId;
+    await repository.withAdminLock(adminId, async (store) => {
+      await store.revokeFamily(adminId, session.familyId, new Date());
+    });
+  }
+
   async function authenticate(accessToken: string): Promise<AuthDto.AdminPrincipal> {
     const { adminId, sessionId } = await tokens.verify(accessToken);
     const admin = await getCurrentAdmin(repository, adminId, sessionId);
@@ -182,7 +200,7 @@ export async function createAdminAuthService(repository: AdminAuthRepository, co
     };
   }
 
-  return { login, refresh, authenticate, changePassword };
+  return { login, refresh, logout, authenticate, changePassword };
 }
 
 export type AdminAuthService = Awaited<ReturnType<typeof createAdminAuthService>>;
