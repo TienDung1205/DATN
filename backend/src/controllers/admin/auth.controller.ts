@@ -2,10 +2,26 @@ import type { NextFunction, Request, Response } from 'express';
 import type * as AuthDto from '../../dto/admin/auth.dto.js';
 import type { AdminAuthService } from '../../services/admin/auth/auth.service.js';
 import { AppError } from '../../errors/appError.js';
+import { getAdminPrincipal } from '../../middlewares/admin/auth.middleware.js';
 import { getAppValue } from '../../utils/appContext.js';
 import { clearCookie, readToken, setCookie } from '../../utils/authCookies.js';
 
 type LoginRequest = Request<Record<string, string>, AuthDto.LoginResponse, AuthDto.LoginInput>;
+
+// [GET] /admin/auth/me
+export const me = async (_req: Request, res: Response<AuthDto.MeResponse>, next: NextFunction) => {
+  try {
+    const admin = getAdminPrincipal(res);
+
+    res.json({
+      success: true,
+      message: 'Thông tin tài khoản.',
+      data: admin.profile,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // [POST] /admin/auth/logout
 export const logout = async (req: Request, res: Response<AuthDto.LogoutResponse>, next: NextFunction) => {

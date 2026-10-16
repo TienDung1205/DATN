@@ -45,3 +45,4 @@ export type LoginResponse = ApiResponse<AuthSessionOutput>;
 export type RefreshResponse = ApiResponse<AuthSessionOutput>;
 export type LogoutOutput = null;
 export type LogoutResponse = ApiResponse<LogoutOutput>;
+export type MeResponse = ApiResponse<AdminOutput>;

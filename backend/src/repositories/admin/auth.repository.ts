@@ -1,4 +1,5 @@
 import type { Prisma, PrismaClient } from '../../generated/prisma/client.js';
+import type { UpdateProfileInput } from '../../dto/admin/account.dto.js';
 
 function createQueries(db: Prisma.TransactionClient) {
   function findAdmin(id: bigint) {
@@ -7,6 +8,17 @@ function createQueries(db: Prisma.TransactionClient) {
 
   function findAdminByEmail(email: string) {
     return db.admin.findUnique({ where: { email } });
+  }
+
+  function updateProfile(id: bigint, input: UpdateProfileInput) {
+    const data: Prisma.AdminUpdateInput = {};
+    if (input.fullName !== undefined) data.fullName = input.fullName;
+    if (input.phone !== undefined) data.phone = input.phone;
+
+    return db.admin.update({
+      where: { id },
+      data,
+    });
   }
 
   function changePassword(id: bigint, password: string) {
@@ -60,6 +72,7 @@ function createQueries(db: Prisma.TransactionClient) {
   return {
     findAdmin,
     findAdminByEmail,
+    updateProfile,
     changePassword,
     findSession,
     findSessionByHash,
