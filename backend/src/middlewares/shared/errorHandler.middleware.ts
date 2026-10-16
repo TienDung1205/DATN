@@ -43,7 +43,7 @@ export const errorHandler: ErrorRequestHandler<Record<string, string>, ApiRespon
     knownError = getRequestBodyError(error);
   }
 
-  if (knownError && knownError.statusCode >= 400 && knownError.statusCode < 500) {
+  if (knownError && ((knownError.statusCode >= 400 && knownError.statusCode < 500) || knownError.statusCode === 502 || knownError.statusCode === 503)) {
     const response: ApiResponse = {
       success: false,
       message: knownError.message,
