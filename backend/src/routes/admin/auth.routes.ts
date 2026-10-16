@@ -11,5 +11,6 @@ const router: Router = Router();
 router.use(noStore);
 router.post('/login', requireFrontendOrigin, adminLoginLimit, validateBody(loginSchema), authController.login);
 router.post('/refresh', requireFrontendOrigin, adminRefreshLimit, authController.refresh);
+router.post('/logout', requireFrontendOrigin, adminRefreshLimit, authController.logout);
 
 export const authRoutes: Router = router;

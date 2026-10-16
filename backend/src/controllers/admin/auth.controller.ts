@@ -7,6 +7,23 @@ import { clearCookie, readToken, setCookie } from '../../utils/authCookies.js';
 
 type LoginRequest = Request<Record<string, string>, AuthDto.LoginResponse, AuthDto.LoginInput>;
 
+// [POST] /admin/auth/logout
+export const logout = async (req: Request, res: Response<AuthDto.LogoutResponse>, next: NextFunction) => {
+  try {
+    const adminAuthService = getAppValue<AdminAuthService>(req.app, 'adminAuthService');
+    await adminAuthService.logout(readToken(req, 'admin'));
+    clearCookie(req, res, 'admin');
+
+    res.json({
+      success: true,
+      message: 'Đã đăng xuất.',
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // [POST] /admin/auth/login
 export const login = async (req: LoginRequest, res: Response<AuthDto.LoginResponse>, next: NextFunction) => {
   try {
